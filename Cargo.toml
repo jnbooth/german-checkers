@@ -1,0 +1,14 @@
+[package]
+name = "german_checkers"
+version = "0.1.0"
+authors = ["Joshua Booth <joshua.n.booth@gmail.com>"]
+
+[profile.dev]
+opt-level = 3
+
+[dependencies]
+itertools = "0.7.8"
+
+[[bin]]
+name = "german_checkers"
+path = "main.rs"
