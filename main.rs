@@ -29,20 +29,12 @@ enum Dir { FlatLeft
          }
 
 #[derive(Debug)]
-struct Move { n:   u8
-            , dir: Dir
-            }
+struct Move { n: u8, dir: Dir }
 
-impl Move {
-    pub fn new(n: i8, dir: Dir) -> Option<Move> { 
-        if n > 0 { Some(Move { n: n as u8, dir: dir }) }
-        else     { None }
-        
+fn add_move(xs: &mut Vec<Move>, n: i8, dir: Dir) {
+    if n > 0 {
+        xs.push(Move { n: n as u8, dir: dir })
     }
-}
-
-fn add_some<T>(xs: &mut Vec<T>, x: Option<T>) {
-    if let Some(x_) = x { xs.push(x_ )}
 }
 
 fn neighbors(n: &u8) -> Vec<Move> {
@@ -57,22 +49,22 @@ fn neighbors(n: &u8) -> Vec<Move> {
     let     down_ = !down as i8;
 
     if left {
-        add_some(&mut xs, Move::new(n_ + 1, Dir::FlatLeft));
+        add_move(&mut xs, n_ + 1, Dir::FlatLeft);
     }
     if right {
-        add_some(&mut xs, Move::new(n_ - 1, Dir::FlatRight));
+        add_move(&mut xs, n_ - 1, Dir::FlatRight);
     }
     if right || up {
-        add_some(&mut xs, Move::new(n_ - row + up_ - 1, Dir::UpRight));
+        add_move(&mut xs, n_ - row + up_ - 1, Dir::UpRight);
     }
     if right || !up {
-        add_some(&mut xs, Move::new(n_ + row + down_ - 1, Dir::DownRight));
+        add_move(&mut xs, n_ + row + down_ - 1, Dir::DownRight);
     }
     if left || up {
-        add_some(&mut xs, Move::new(n_ - row + up_, Dir::UpLeft));
+        add_move(&mut xs, n_ - row + up_, Dir::UpLeft);
     }
     if left || !up {
-        add_some(&mut xs, Move::new(n_ + row + down_, Dir::DownLeft));
+        add_move(&mut xs, n_ + row + down_, Dir::DownLeft);
     }
     xs.retain(|x| x.n < GAME_SIZE);
     xs
@@ -105,7 +97,7 @@ fn add_hops(hopped: &mut HashSet<u128>, game: &u128, n: &u8) {
     for n1 in hop(game, n) { 
         let game1 = game0 | to_bit(&n1);
         if hopped.insert(game1 | to_bit(&n1)) {
-            add_hops(hopped, &game1, &n1);
+            add_hops(hopped, &game1, &n1)
         }
     }
 }
@@ -114,7 +106,7 @@ fn hops(game: &u128) -> HashSet<u128> {
     let mut hopped = HashSet::new();
     hopped.insert(*game);
     for n in (0..GAME_SIZE).filter(|n| test_bit(game, n)) {
-        add_hops(&mut hopped, &game, &n);
+        add_hops(&mut hopped, &game, &n)
     }
     hopped.remove(game);
     hopped
@@ -178,23 +170,22 @@ fn solve() -> Vec<u128> {
             if let Some(turn) = turns.last() {
                 let played = play(games, &turn);
                 if played.contains(&end) {
-                    return turns.clone();
+                    return turns.clone()
                 }
-
                 playing_.extend(played
                     .into_iter()
                     .map(|game| {
                         let mut turns_ = turns.clone();
                         turns_.push(game);
                         turns_
-                    }));
+                    }))
             }
         }
-        playing = playing_;
+        playing = playing_
     }
 }
 
 fn main() {
-    println!("{}", solve().into_iter().map(|x| show_tiles(1, x)).join("\n***\n"));
-    println!("***\n{}", show_tiles(1, (0 ..10).map(|x| to_bit(&x)).sum()));
+    println!("{}", solve().into_iter().map(|x| show_tiles(1, x)).join("\n\n"));
+    println!("\n{}", show_tiles(1, (0 ..10).map(|x| to_bit(&x)).sum()));
 }
